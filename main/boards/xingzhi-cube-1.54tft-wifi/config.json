@@ -1,0 +1,15 @@
+{
+    "target": "esp32s3",
+    "builds": [
+        {
+            "name": "xingzhi-cube-1.54tft-wifi",
+            "sdkconfig_append": [
+			"CONFIG_USE_DEVICE_AEC=y"
+			"CONFIG_PM_ENABLE=y",
+                "CONFIG_FREERTOS_USE_TICKLESS_IDLE=y",
+                "CONFIG_USE_ESP_WAKE_WORD=y",
+                "CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y"
+			]
+        }
+    ]
+}
