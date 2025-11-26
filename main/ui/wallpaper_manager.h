@@ -11,8 +11,7 @@
 class WallpaperManager {
 public:
     enum class TransitionEffect {
-        FadeBlack = 0,
-        Random    // chọn ngẫu nhiên 1 trong 5
+        FadeBlack = 0
     };
 
     static WallpaperManager& GetInstance() {
@@ -48,10 +47,11 @@ private:
 #ifdef HAVE_LVGL
     // Các hiệu ứng chuyển cảnh
     bool do_fade_black_then_apply(const std::shared_ptr<LvglImage>& new_img);
-   
 #endif
 
     std::vector<std::string> names_;
+	// *** mới thêm: cache hình đã decode ***
+    std::vector<std::shared_ptr<LvglImage>> images_;
     size_t current_index_ = 0;
 
     bool auto_rotate_ = true;

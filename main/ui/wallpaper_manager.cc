@@ -17,7 +17,7 @@ static const char* TAG = "WallpaperManager";
 void WallpaperManager::SetWallpapers(const std::vector<std::string>& names) {
     names_ = names;
     if (names_.empty()) return;
-    current_index_ = current_index_ % names_.size();
+	current_index_ = current_index_ % names_.size();
     Apply(current_index_);
 }
 
@@ -58,7 +58,7 @@ std::shared_ptr<LvglImage> WallpaperManager::LoadImage(const std::string& name) 
 
 bool WallpaperManager::Apply(size_t index) {
     if (names_.empty()) return false;
-    index %= names_.size();
+	   index %= names_.size();
 
     auto display = Board::GetInstance().GetDisplay();
     if (!display) return false;
@@ -70,7 +70,8 @@ bool WallpaperManager::Apply(size_t index) {
     auto img = LoadImage(names_[index]);
     if (!img) {
         ESP_LOGE(TAG, "Failed to load image: %s", names_[index].c_str());
-        return false;
+		
+	return false;
     }
 
     // set cho light & dark
@@ -80,12 +81,16 @@ bool WallpaperManager::Apply(size_t index) {
     display->SetTheme(theme);
     current_index_ = index;
     ESP_LOGI(TAG, "Applied wallpaper #%u: %s", (unsigned)index, names_[index].c_str());
+	// Hiển thị tên hình nền lên khung chat
+    char buf[64];
+    snprintf(buf, sizeof(buf), "Hình nền: %s", names_[index].c_str());
+    display->SetChatMessage("system", buf);
     return true;
 }
 
 bool WallpaperManager::ApplyWithEffect(size_t index, TransitionEffect fx) {
     if (names_.empty()) return false;
-    index %= names_.size();
+	index %= names_.size();
 
     // Map mọi thứ về FadeBlack để an toàn tuyệt đối
     (void)fx;
@@ -105,7 +110,7 @@ bool WallpaperManager::ApplyWithEffect(size_t index, TransitionEffect fx) {
 #ifdef HAVE_LVGL
     if (!do_fade_black_then_apply(new_img)) {
         // fallback đổi thẳng
-        return Apply(index);
+        return Apply(index);	
     }
 #else
     if (!Apply(index)) return false;
@@ -113,6 +118,10 @@ bool WallpaperManager::ApplyWithEffect(size_t index, TransitionEffect fx) {
 
     current_index_ = index;
     ESP_LOGI(TAG, "Applied wallpaper #%u with FadeBlack", (unsigned)index);
+	// Hiển thị tên hình nền lên khung chat (khi dùng hiệu ứng)
+    char buf[64];
+    snprintf(buf, sizeof(buf), "Hình nền: %s", names_[index].c_str());
+    display->SetChatMessage("system", buf);
     return true;
 }
 
@@ -127,8 +136,12 @@ void WallpaperManager::OnTick() {
     elapsed_sec_++;
     if (elapsed_sec_ >= interval_sec_) {
         elapsed_sec_ = 0;
-        // chỉ dùng FadeBlack cho auto-rotate
-        ApplyWithEffect((current_index_ + 1) % names_.size(), TransitionEffect::FadeBlack);
+		images_.clear();
+		images_.reserve(names_.size());
+    // chỉ dùng FadeBlack cho auto-rotate
+    ApplyWithEffect((current_index_ + 1) % names_.size(), TransitionEffect::FadeBlack);
+	 
+     
     }
 }
 
@@ -188,5 +201,6 @@ bool WallpaperManager::do_fade_black_then_apply(const std::shared_ptr<LvglImage>
     lvgl_port_unlock();
     return true;
 }
+
 
 #endif // HAVE_LVGL

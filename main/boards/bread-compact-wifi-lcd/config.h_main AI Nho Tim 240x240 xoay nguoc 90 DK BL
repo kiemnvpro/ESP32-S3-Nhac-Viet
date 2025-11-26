@@ -35,28 +35,28 @@
 #define VOLUME_DOWN_BUTTON_GPIO GPIO_NUM_NC
 
 // Cho Mpdem ESP32 S3 N16R8
-#define DISPLAY_BACKLIGHT_PIN GPIO_NUM_42
-#define DISPLAY_MOSI_PIN      GPIO_NUM_47
-#define DISPLAY_CLK_PIN       GPIO_NUM_21
-#define DISPLAY_DC_PIN        GPIO_NUM_40
-#define DISPLAY_RST_PIN       GPIO_NUM_45
-#define DISPLAY_CS_PIN        GPIO_NUM_41
+//#define DISPLAY_BACKLIGHT_PIN GPIO_NUM_42
+//#define DISPLAY_MOSI_PIN      GPIO_NUM_47
+//#define DISPLAY_CLK_PIN       GPIO_NUM_21
+//#define DISPLAY_DC_PIN        GPIO_NUM_40
+//#define DISPLAY_RST_PIN       GPIO_NUM_45
+//#define DISPLAY_CS_PIN        GPIO_NUM_41
 
 // Cho Mpdem ESP32 S3 XH-S3E AI
 //#define DISPLAY_BACKLIGHT_PIN GPIO_NUM_NC
-//#define DISPLAY_MOSI_PIN      GPIO_NUM_41
-//#define DISPLAY_CLK_PIN       GPIO_NUM_42
-//#define DISPLAY_DC_PIN        GPIO_NUM_43
-//#define DISPLAY_RST_PIN       GPIO_NUM_44
-//#define DISPLAY_CS_PIN        GPIO_NUM_NC
+#define DISPLAY_MOSI_PIN      GPIO_NUM_41
+#define DISPLAY_CLK_PIN       GPIO_NUM_42
+#define DISPLAY_DC_PIN        GPIO_NUM_43
+#define DISPLAY_RST_PIN       GPIO_NUM_44
+#define DISPLAY_CS_PIN        GPIO_NUM_NC
 
 
 #ifdef CONFIG_LCD_ST7789_240X320
 #define LCD_TYPE_ST7789_SERIAL
 #define DISPLAY_WIDTH   320 //Xoay 
 #define DISPLAY_HEIGHT  240 //Xoay
-#define DISPLAY_MIRROR_X true  //bat
-#define DISPLAY_MIRROR_Y false
+#define DISPLAY_MIRROR_X true //bat theo chieu kim dong ho
+#define DISPLAY_MIRROR_Y false  //bat nguoc chieu kim dong ho
 #define DISPLAY_SWAP_XY true //bat
 #define DISPLAY_INVERT_COLOR    true
 #define DISPLAY_RGB_ORDER  LCD_RGB_ELEMENT_ORDER_RGB
@@ -66,10 +66,10 @@
 
 
 // Cho Mpdem ESP32 S3 N16R8
-#define DISPLAY_SPI_MODE 0
+//#define DISPLAY_SPI_MODE 0
 
 // Cho Mpdem ESP32 S3 XH-S3E AI
-//#define DISPLAY_SPI_MODE 3
+#define DISPLAY_SPI_MODE 3
 #endif
 
 #ifdef CONFIG_LCD_ST7789_240X320_NO_IPS
@@ -151,13 +151,15 @@
 #define LCD_TYPE_ST7789_SERIAL
 #define DISPLAY_WIDTH   240
 #define DISPLAY_HEIGHT  240
-#define DISPLAY_MIRROR_X true  //bat
-#define DISPLAY_MIRROR_Y false
-#define DISPLAY_SWAP_XY true //bat
-#define DISPLAY_INVERT_COLOR    true // Truoc la  true
+#define DISPLAY_MIRROR_X false  
+#define DISPLAY_MIRROR_Y true //bat nguoc chieu kim dong ho
+#define DISPLAY_SWAP_XY true  //bat xoay
+#define DISPLAY_INVERT_COLOR    true
 #define DISPLAY_RGB_ORDER  LCD_RGB_ELEMENT_ORDER_RGB
-#define DISPLAY_OFFSET_X  0
+#define DISPLAY_OFFSET_X  80 //luc dau la 0
 #define DISPLAY_OFFSET_Y  0
+#define BACKLIGHT_INVERT false
+#define DISPLAY_BACKLIGHT_PIN GPIO_NUM_18 //Chan dieu khien do sang LCD
 #define DISPLAY_BACKLIGHT_OUTPUT_INVERT false
 #define DISPLAY_SPI_MODE 3
 #endif
@@ -267,7 +269,6 @@
 #define DISPLAY_SPI_MODE 0
 #endif
 
-// CHO MAN HINH LCD TRON 1.28
 #ifdef CONFIG_LCD_GC9A01_240X240
 #define LCD_TYPE_GC9A01_SERIAL
 #define DISPLAY_WIDTH   240

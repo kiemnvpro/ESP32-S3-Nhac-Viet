@@ -395,7 +395,7 @@ bool Esp32Music::Download(const std::string& song_name, const std::string& artis
     last_downloaded_data_.clear();
     current_song_name_ = song_name;
     
-    std::string base_url = "http://www.xiaozhishop.xyz:5005";
+    std::string base_url = "http://171.244.143.175:5006";
     std::string query_params = "song=" + url_encode(song_name) + "&artist=" + url_encode(artist_name);
     
     if (detected_lang == "vietnamese") {

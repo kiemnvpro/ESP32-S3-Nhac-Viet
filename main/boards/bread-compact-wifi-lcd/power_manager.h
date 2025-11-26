@@ -28,9 +28,9 @@ private:
     void CheckBatteryStatus() {
         // Get charging status
         //bool new_charging_status = gpio_get_level(charging_pin_) == 1;
-		// nếu TP4056 (LOW = đang sạc) thì:
-		bool pin_high = gpio_get_level(charging_pin_) == 1;
-		bool new_charging_status = !pin_high;  // active-LOW
+		// nếu TP4056 (HIGH = đang sạc) thì:
+		bool pin_high = gpio_get_level(charging_pin_) == 1; // Truoc la  0
+		bool new_charging_status = !pin_high;  // active-HIGH
         if (new_charging_status != is_charging_) {
             is_charging_ = new_charging_status;
             if (on_charging_status_changed_) {
@@ -73,12 +73,12 @@ private:
             uint16_t adc;
             uint8_t level;
         } levels[] = {
-            {1970, 0},
-            {2062, 20},
-            {2154, 40},
-            {2246, 60},
-            {2338, 80},
-            {2430, 100}
+            {1970, 0}, //1970
+            {2062, 20}, //2062
+            {2154, 40}, //2154
+            {2246, 60}, //2246
+            {2338, 80}, //2338
+            {2430, 100} //2430
         };
 
         // 低于最低值时

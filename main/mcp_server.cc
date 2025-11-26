@@ -107,7 +107,7 @@ void McpServer::AddCommonTools() {
         "Hiện chỉ hỗ trợ hiệu ứng 'fade_black' (mờ dần). "
         "Các hiệu ứng khác sẽ tự động dùng fade_black.",
         PropertyList({
-            Property("index", kPropertyTypeInteger, 1, 1, 10),
+            Property("index", kPropertyTypeInteger, 1, 1, 7),
             Property("effect", kPropertyTypeString, "fade_black")
         }),
         [](const PropertyList& properties) -> ReturnValue {
@@ -158,20 +158,39 @@ auto& alarm = AlarmManager::GetInstance();
 AddTool("self.alarm.set",
     "Đặt báo thức mới với giờ, phút và chuông tuỳ chọn.",
     PropertyList({
-        Property("hour", kPropertyTypeInteger, 0, 23),
-        Property("minute", kPropertyTypeInteger, 0, 59),
-        Property("ringtone", kPropertyTypeString, "iphone.ogg"),
+        Property("hour", kPropertyTypeInteger),
+        Property("minute", kPropertyTypeInteger),
+        // AI sẽ chọn 1 trong 3: ga, alarm1, iphone
+        Property("ringtone", kPropertyTypeString,
+                 "Chuông báo thức. Chỉ dùng một trong: 'ga', 'alarm1', 'iphone'. "
+                 "Mặc định là 'ga'."),
         Property("repeat_daily", kPropertyTypeBoolean)
     }),
     [&alarm](const PropertyList& p) -> ReturnValue {
-        int hour = p["hour"].value<int>();
+        int hour   = p["hour"].value<int>();
         int minute = p["minute"].value<int>();
-        auto ringtone = p["ringtone"].value<std::string>();
+
+        std::string ringtone = "ga";     // mặc định / ưu tiên
+        try {
+            ringtone = p["ringtone"].value<std::string>();
+        } catch (...) {
+            // bỏ qua, dùng 'ga'
+        }
+
+        // Chỉ cho phép 3 giá trị, sai thì ép về 'ga'
+        if (ringtone != "ga" &&
+            ringtone != "alarm1" &&
+            ringtone != "iphone") {
+            ringtone = "ga";
+        }
+
         bool repeat = false;
         try { repeat = p["repeat_daily"].value<bool>(); } catch (...) {}
+
         alarm.AddAlarm(hour, minute, ringtone, repeat);
         return "{\"success\":true,\"message\":\"Đã đặt báo thức.\"}";
     });
+
 
 AddTool("self.alarm.list",
     "Liệt kê tất cả các báo thức đã đặt.",
@@ -187,6 +206,14 @@ AddTool("self.alarm.clear",
         alarm.RemoveAll();
         return "{\"success\":true,\"message\":\"Đã xoá tất cả báo thức.\"}";
     });
+AddTool("self.alarm.stop",
+    "Tắt chuông báo thức đang reo.",
+    PropertyList(),
+    [&alarm](const PropertyList&) -> ReturnValue {
+        alarm.StopRinging();
+        return "{\"success\":true,\"message\":\"Đã tắt chuông báo thức.\"}";
+    });
+
 
 
 	

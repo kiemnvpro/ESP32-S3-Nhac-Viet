@@ -1,16 +1,11 @@
 #include "alarm_manager.h"
 #include "application.h"
-#include "assets/lang_config.h"
-
+#include "assets/lang_config.h"   // để dùng Lang::Sounds::OGG_ACTIVATION
 #include <esp_log.h>
 #include <cJSON.h>
 #include <ctime>
-#include <algorithm>
-#include <cctype>
 
 #define TAG "AlarmManager"
-
-using namespace Lang;
 
 AlarmManager::AlarmManager() {
     // Timer kiểm tra báo thức mỗi phút
@@ -24,7 +19,7 @@ AlarmManager::AlarmManager() {
         .skip_unhandled_events = true
     };
     ESP_ERROR_CHECK(esp_timer_create(&args, &timer_handle_));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handle_, 60 * 1000000)); // 60s
+    ESP_ERROR_CHECK(esp_timer_start_periodic(timer_handle_, 60 * 1000000));
 
     // Timer lặp chuông
     esp_timer_create_args_t ring_args = {
@@ -65,12 +60,13 @@ void AlarmManager::AddAlarm(int hour, int minute,
     if (minute > 59) minute = 59;
 
     alarms_.push_back(Alarm{hour, minute, ringtone, repeat_daily});
-    ESP_LOGI(TAG, "Added alarm %02d:%02d ringtone=%s repeat=%d",
+    ESP_LOGI(TAG, "Added alarm %02d:%02d, ringtone=%s, repeat=%d",
              hour, minute, ringtone.c_str(), repeat_daily ? 1 : 0);
 }
 
 void AlarmManager::RemoveAll() {
-    StopRinging();  // nếu đang reo thì tắt
+    // nếu đang reo thì tắt luôn
+    StopRinging();
     alarms_.clear();
     ESP_LOGI(TAG, "All alarms cleared");
 }
@@ -112,75 +108,69 @@ void AlarmManager::TriggerAlarm(const Alarm& a) {
     ESP_LOGI(TAG, "Alarm triggered at %02d:%02d (ring=%s)",
              a.hour, a.minute, a.ringtone.c_str());
 
-    // Hiển thị popup báo thức
-    Application::GetInstance().Alert("Báo thức", "Đã đến giờ!", "bell", "");
-
-    // Bắt đầu phát chuông lặp
     StartRinging(a);
 
-    if (on_triggered_) on_triggered_(a);
+    if (on_triggered_) {
+        on_triggered_(a);
+    }
 }
 
-// ====================================================================
-// Cơ chế phát chuông: 10 lần, mỗi lần cách nhau 10 giây
-// ====================================================================
-
+// Bắt đầu chế độ reo lặp: tổng cộng 5 lần, cách nhau 3 giây
 void AlarmManager::StartRinging(const Alarm& a) {
     current_alarm_ = a;
+
+    // reset trạng thái
     ring_count_ = 0;
     is_ringing_ = true;
 
+    // nếu timer cũ còn chạy thì dừng lại
     if (ring_timer_handle_) {
-        esp_timer_stop(ring_timer_handle_);  // reset timer nếu đang chạy
-        esp_timer_start_periodic(ring_timer_handle_, 10000000); // 10s
+        esp_timer_stop(ring_timer_handle_);
     }
 
-    ESP_LOGI(TAG, "StartRinging: ringtone=%s", a.ringtone.c_str());
+    ESP_LOGI(TAG, "Start ringing alarm loop at %02d:%02d", a.hour, a.minute);
+
+    // Lần đầu tiên: kêu ngay lập tức
+    Application::GetInstance().Alert(
+        "Báo thức",
+        "Đã đến giờ!",
+        "bell",
+        Lang::Sounds::OGG_ACTIVATION   // âm OGG mà anh nói đã kêu OK
+    );
+    ring_count_ = 1;
+
+    // Sau đó 3 giây thì kêu lần 2,3,4,5...
+    if (ring_timer_handle_) {
+        // 3 giây = 3 * 1_000_000 microseconds
+        ESP_ERROR_CHECK(esp_timer_start_periodic(ring_timer_handle_, 9 * 1000000));
+    }
 }
 
 void AlarmManager::OnRingTimer() {
-    if (!is_ringing_) return;
+    if (!is_ringing_) {
+        return;
+    }
 
-    if (ring_count_ >= 10) {
-        ESP_LOGI(TAG, "Reached max ring count, stopping alarm");
+    // Nếu đã kêu đủ 5 lần (bao gồm cả lần đầu tiên) thì dừng
+    if (ring_count_ >= 5) {
+        ESP_LOGI(TAG, "Alarm reached max ring count, stopping");
         StopRinging();
         return;
     }
 
-    // id chuông mà AI / người dùng chọn
-    const std::string& id = current_alarm_.ringtone;
+    ESP_LOGI(TAG, "Alarm ring tick #%d", ring_count_ + 1);
 
-    // mặc định: GA
-    const std::string_view* ogg = &Lang::Sounds::OGG_GA;
-
-    if (id == "ga") {
-        ogg = &Lang::Sounds::OGG_GA;
-    } else if (id == "alarm1") {
-        ogg = &Lang::Sounds::OGG_ALARM1;
-    } else if (id == "iphone") {
-        ogg = &Lang::Sounds::OGG_IPHONE;
-    } else {
-        // giá trị lạ → ép về GA
-        ogg = &Lang::Sounds::OGG_GA;
-    }
-
-    // Fallback: GA lỗi → ALARM1 → lại về GA
-    if (ogg->empty()) {
-        ESP_LOGW(TAG, "Selected ringtone is empty, fallback to ALARM1");
-        ogg = &Lang::Sounds::OGG_ALARM1;
-        if (ogg->empty()) {
-            ESP_LOGW(TAG, "ALARM1 is also empty, fallback back to GA");
-            ogg = &Lang::Sounds::OGG_GA;
-        }
-    }
-
-    ESP_LOGI(TAG, "Playing alarm sound #%d (id=%s)", ring_count_ + 1, id.c_str());
-	Application::GetInstance().GetAudioService().PlaySound(*ogg);
-    //Application::GetInstance().GetAudioService().PlayBuiltinOgg(*ogg);
-
+    // Phát lại chuông
+    Application::GetInstance().Alert(
+        "Báo thức",
+        "Đã đến giờ!",
+        "bell",
+        Lang::Sounds::OGG_ACTIVATION
+    );
     ring_count_++;
 }
 
+// Có thể gọi qua tool self.alarm.stop hoặc khi clear báo thức
 void AlarmManager::StopRinging() {
     if (!is_ringing_) {
         return;

@@ -97,6 +97,8 @@ extern const lv_image_dsc_t emoji_1f60f_64; // confident
 extern const lv_image_dsc_t emoji_1f634_64; // sleepy
 extern const lv_image_dsc_t emoji_1f61c_64; // silly
 extern const lv_image_dsc_t emoji_1f644_64; // confused
+extern const lv_image_dsc_t bell; // bell
+extern const lv_image_dsc_t microchip_ai; // microchip_ai
 
 Twemoji64::Twemoji64() {
     AddEmoji("neutral", new LvglSourceImage(&emoji_1f636_64));
@@ -120,4 +122,6 @@ Twemoji64::Twemoji64() {
     AddEmoji("sleepy", new LvglSourceImage(&emoji_1f634_64));
     AddEmoji("silly", new LvglSourceImage(&emoji_1f61c_64));
     AddEmoji("confused", new LvglSourceImage(&emoji_1f644_64));
+	AddEmoji("bell", new LvglSourceImage(&bell));
+	AddEmoji("microchip_ai", new LvglSourceImage(&microchip_ai));
 }

@@ -11,6 +11,9 @@
 #include "settings.h"
 #include "ui/alarm_manager.h"
 #include "ui/wallpaper_manager.h" // Danh sách file hình nền 1/3
+#include "application.h"
+#include "audio/audio_service.h"
+#include "esp_log.h"
 #include <thread>
 
 #include <cstring>
@@ -425,7 +428,7 @@ void Application::Start() {
     CheckNewVersion(ota);
 	CheckAssetsVersion();
 
-
+	
 
     // Initialize the protocol
     display->SetStatus(Lang::Strings::LOADING_PROTOCOL);
@@ -433,12 +436,11 @@ void Application::Start() {
 		// Danh sách file hình nền 2/3 ("1.png","2.png","3.png","4.png","5.png","6.png","7.png","8.png")
         //  - file trong assets (ví dụ đã đóng gói: triangles.cbin / rose.cbin / …)
         //  - hoặc file đặt vào SPIFFS: /spiffs/1.png ...
-		std::vector<std::string> wallpapers = {"1.png","2.png","3.png","4.png","5.png","6.png","7.png","8.png"};
+		std::vector<std::string> wallpapers = {"1.png","2.png","3.png","4.png","5.png","6.png","7.png"};
 		auto& wm = WallpaperManager::GetInstance();
 		wm.SetWallpapers(wallpapers);
 		wm.EnableAutoRotate(true, 180); // đổi mỗi 180 giây (3 phút)
-		
-
+	
 
     // Add MCP common tools before initializing the protocol
     auto& mcp_server = McpServer::GetInstance();
@@ -585,6 +587,7 @@ void Application::Start() {
         audio_service_.PlaySound(Lang::Sounds::OGG_SUCCESS);
     }
 }
+
 
 // Add a async task to MainLoop
 void Application::Schedule(std::function<void()> callback) {

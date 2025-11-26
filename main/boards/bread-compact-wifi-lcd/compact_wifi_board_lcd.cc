@@ -78,7 +78,7 @@ private:
     esp_lcd_panel_handle_t panel_ = nullptr;
 	
 	void InitializePowerManager() {
-        power_manager_ = new PowerManager(GPIO_NUM_13);
+        power_manager_ = new PowerManager(GPIO_NUM_13);  // GPIO_NUM_13  bao sac cho N16R8 
         power_manager_->OnChargingStatusChanged([this](bool is_charging) {
             if (is_charging) {
                 power_save_timer_->SetEnabled(false);

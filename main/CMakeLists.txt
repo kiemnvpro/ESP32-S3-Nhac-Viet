@@ -38,6 +38,12 @@ set(SOURCES "audio/audio_codec.cc"
             "main.cc"
 			"ui/alarm_manager.cc"
 			"ui/wallpaper_manager.cc"   # 👈 THÊM DÒNG NÀY //Danh sách file hình nền 5/5
+			"custom_emoji/bell.c"
+			"custom_emoji/microchip_ai.c"
+			"custom_emoji/custom_emoji.h"
+			
+			
+			
             )
 
 set(INCLUDE_DIRS "." "display" "display/lvgl_display" "display/lvgl_display/jpg" "audio" "protocols")
@@ -595,10 +601,16 @@ endif()
 idf_component_register(SRCS ${SOURCES}
 					ui/alarm_manager.cc
 					ui/wallpaper_manager.cc # //Danh sách file hình nền 3/5
+					custom_emoji/bell.c
+					custom_emoji/microchip_ai.c
+					custom_emoji/custom_emoji.h
+										
                 EMBED_FILES ${LANG_SOUNDS} ${COMMON_SOUNDS}
+				assets/locales/vi-VN/iphone.ogg
                 INCLUDE_DIRS ${INCLUDE_DIRS}
 					spiffs # //Danh sách file hình nền 4/5
                 WHOLE_ARCHIVE
+				
 				
                     )
 
@@ -705,7 +717,7 @@ function(build_default_assets_bin)
         list(APPEND BUILD_ARGS "--extra_files" "${DEFAULT_ASSETS_EXTRA_FILES}")
     endif()
     
-    list(APPEND BUILD_ARGS "--esp_sr_model_path" "${ESP_SR_MODEL_PATH}")
+  #  list(APPEND BUILD_ARGS "--esp_sr_model_path" "${ESP_SR_MODEL_PATH}")
     list(APPEND BUILD_ARGS "--xiaozhi_fonts_path" "${XIAOZHI_FONTS_PATH}")
     
     # Create custom command to build assets

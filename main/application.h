@@ -13,7 +13,7 @@
 
 #include "protocol.h"
 #include "ota.h"
-#include "audio_service.h"
+#include "audio/audio_service.h"
 #include "device_state_event.h"
 
 
@@ -63,7 +63,10 @@ public:
     AecMode GetAecMode() const { return aec_mode_; }
     // 新增：接收外部音频数据（如音乐播放）
     void AddAudioData(AudioStreamPacket&& packet);
+	//mac dinh cua project
     void PlaySound(const std::string_view& sound);
+	// Phát chuông / âm thanh hệ thống từ file .ogg
+    void PlayAudioAuto(const std::string& ringtone);
     AudioService& GetAudioService() { return audio_service_; }
 
 private:
